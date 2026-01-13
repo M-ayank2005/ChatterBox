@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  scylladb:
+    image: scylladb/scylla:latest
+    container_name: whatsapp-scylla
+    ports:
+      - "9042:9042" # Native transport
+      - "19042:19042" # REST API
+    volumes:
+      - scylla-data:/var/lib/scylla
+    command: --smp 1 --memory 1G # Limit resources for dev
+    networks:
+      - app_network
+    healthcheck:
+        test: ["CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES'"]
+        interval: 10s
+        timeout: 5s
+        retries: 10
+
+  redis:
+    image: redis:alpine
+    container_name: whatsapp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app_network
+    command: ["redis-server", "--appendonly", "yes"]
+
+  mongo:
+    image: mongo:latest
+    container_name: whatsapp-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: chatapp-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - MONGO_URI=mongodb://mongo:27017
+      - SCYLLA_HOSTS=scylladb
+      - REDIS_ADDR=redis:6379
+      - JWT_SECRET=your-secret-key-change-in-production
+    depends_on:
+      - mongo
+      - scylladb
+      - redis
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: chatapp-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart: unless-stopped
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  scylla-data:
+  redis-data:
+  mongo-data:
