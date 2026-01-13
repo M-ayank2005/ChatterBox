@@ -60,29 +60,29 @@ A modern, feature-rich real-time chat application with clean UI/UX inspired by m
 ```
 ChatterBox/
 ├── server/
-│   ├── cmd/api/main.go          # Application entry point
+│   ├── cmd/api/main.go         
 │   └── internal/
-│       ├── auth/                # Authentication handlers
-│       ├── chat/                # WebSocket chat logic
-│       ├── contacts/            # Contact management
-│       ├── db/                  # Database connections
-│       ├── messages/            # Message history API
-│       ├── middleware/          # Auth middleware
-│       └── models/              # Data models
+│       ├── auth/               
+│       ├── chat/              
+│       ├── contacts/           
+│       ├── db/                  
+│       ├── messages/           
+│       ├── middleware/         
+│       └── models/             
 └── client/
-    ├── app/                     # Next.js pages
+    ├── app/                    
     │   ├── login/
     │   ├── signup/
-    │   └── page.tsx            # Main chat page
-    ├── components/             # React components
-    │   ├── ChatSidebar.tsx    # Contact list & search
-    │   ├── ChatWindow.tsx     # Message display & input
-    │   ├── CallModalWebRTC.tsx # Video/audio call UI
-    │   └── ResizablePanel.tsx # Draggable resize panel
+    │   └── page.tsx           
+    ├── components/            
+    │   ├── ChatSidebar.tsx   
+    │   ├── ChatWindow.tsx    
+    │   ├── CallModalWebRTC.tsx 
+    │   └── ResizablePanel.tsx 
     └── lib/
-        ├── store.ts           # Zustand state management
-        ├── sounds.ts          # Audio tones
-        └── webrtc.ts          # WebRTC utilities
+        ├── store.ts         
+        ├── sounds.ts         
+        └── webrtc.ts        
 ```
 
 ## 🚦 Getting Started
@@ -144,28 +144,6 @@ Frontend runs on `http://localhost:3000`
 - Press Enter or click Send
 - Messages appear in real-time for both users
 
-## 🔧 Key Improvements Made
-
-### Backend Fixes
-1. ✅ Changed authentication from email to phone number
-2. ✅ Added bio field to user profiles
-3. ✅ Created Contact model and CRUD operations
-4. ✅ Added search user by phone endpoint
-5. ✅ Fixed message routing to send only to sender and receiver
-6. ✅ Added auth middleware for protected routes
-7. ✅ Improved WebSocket message handling
-
-### Frontend Fixes
-1. ✅ Updated login/signup forms for phone-based auth
-2. ✅ Created contact management UI with modal
-3. ✅ Replaced "all users" list with contacts-only sidebar
-4. ✅ Fixed message persistence and display issues
-5. ✅ Added activeChatUser to store for better UX
-6. ✅ Improved message bubbles with timestamps and read receipts
-7. ✅ Added empty states for no contacts/messages
-8. ✅ Enhanced UI with WhatsApp/Telegram-inspired design
-9. ✅ Added smooth animations and transitions
-10. ✅ Fixed background opacity for better readability
 
 ## 🎨 UI Features
 
