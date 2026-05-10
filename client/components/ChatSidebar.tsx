@@ -189,7 +189,7 @@ export default function ChatSidebar() {
 
   const filteredChats = recentChats.filter(chat => {
     const contact = contacts.find(c => c.contact_id === chat.userId);
-    const name = contact?.display_name || '';
+    const name = contact?.display_name || contact?.user?.phone || 'Unknown';
     return name.toLowerCase().includes(search.toLowerCase());
   });
 
@@ -476,7 +476,7 @@ export default function ChatSidebar() {
           ) : (
             filteredChats.map((chat) => {
               const contact = contacts.find(c => c.contact_id === chat.userId);
-              const name = contact?.display_name || contact?.user?.username || 'Unknown';
+              const name = contact?.display_name || contact?.user?.phone || contact?.user?.username || 'Unknown';
               
               return (
                 <div

@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useStore } from '@/lib/store';
 import { soundManager } from '@/lib/sounds';
-import { Send, MoreVertical, Search, Paperclip, Smile, Phone, Video, X, Reply, Trash2, Check, CheckCheck } from 'lucide-react';
+import { Send, MoreVertical, Search, Paperclip, Smile, Phone, Video, X, Reply, Trash2, Check, CheckCheck, UserPlus, Shield, Flag } from 'lucide-react';
 import EmojiPicker from './EmojiPicker';
+import axios from 'axios';
 
 interface ChatWindowProps {
   ws: WebSocket | null;
@@ -12,12 +13,15 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
-  const { activeChat, activeChatUser, messages, user, typing, onlineStatus, replyingTo, setReplyingTo } = useStore();
+  const { activeChat, activeChatUser, messages, user, typing, onlineStatus, replyingTo, setReplyingTo, contacts, setContacts } = useStore();
   const [input, setInput] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showMessageMenu, setShowMessageMenu] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSaveContactModal, setShowSaveContactModal] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [savingContact, setSavingContact] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -99,6 +103,80 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
   const handleEmojiSelect = (emoji: string) => {
     setInput(prev => prev + emoji);
     inputRef.current?.focus();
+  };
+
+  // Format phone number with country code
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return 'Unknown';
+    // Remove all non-numeric characters
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 0) return 'Unknown';
+    
+    // If it starts with +, keep it
+    if (phone.startsWith('+')) {
+      return phone;
+    }
+    
+    // Add + if it looks like a country code is missing
+    if (cleaned.length > 10) {
+      return `+${cleaned}`;
+    }
+    
+    return phone;
+  };
+
+  // Check if user is in contacts
+  const isInContacts = activeChatUser ? contacts.some(c => c.contact_id === activeChatUser.id) : false;
+
+  // Get display name for the chat user
+  const getDisplayName = () => {
+    if (!activeChatUser) return 'Unknown';
+    
+    const contact = contacts.find(c => c.contact_id === activeChatUser.id);
+    if (contact?.display_name) return contact.display_name;
+    
+    // If not in contacts, show formatted phone number instead of username
+    if (!isInContacts && activeChatUser.phone) {
+      return formatPhoneNumber(activeChatUser.phone);
+    }
+    
+    return activeChatUser.username || 'Unknown';
+  };
+
+  // Handle save contact
+  const handleSaveContact = async () => {
+    if (!activeChatUser || !displayName.trim() || !user) return;
+    
+    setSavingContact(true);
+    try {
+      await axios.post('http://localhost:8080/api/contacts', {
+        contact_id: activeChatUser.id,
+        display_name: displayName,
+        phone: activeChatUser.phone
+      }, {
+        headers: { 'user_id': user.id }
+      });
+      
+      // Refresh contacts
+      const res = await axios.get('http://localhost:8080/api/contacts', {
+        headers: { 'user_id': user.id }
+      });
+      setContacts(res.data || []);
+      
+      setShowSaveContactModal(false);
+      setDisplayName('');
+    } catch (err) {
+      console.error('Failed to save contact:', err);
+    } finally {
+      setSavingContact(false);
+    }
+  };
+
+  // Open save contact modal
+  const openSaveContactModal = () => {
+    if (!activeChatUser) return;
+    setDisplayName(activeChatUser.username || '');
+    setShowSaveContactModal(true);
   };
 
   // Filter messages for current chat
@@ -189,11 +267,11 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
       <div className="h-[59px] bg-[#202c33] shrink-0 px-4 flex items-center justify-between">
         <div className="flex items-center cursor-pointer group">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00a884] to-[#02735e] flex items-center justify-center text-white font-medium mr-[15px] shadow-lg">
-            {activeChatUser.username?.charAt(0).toUpperCase() || 'U'}
+            {getDisplayName()?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-[#e9edef] text-[16px] font-normal group-hover:text-white transition-smooth">
-              {activeChatUser.username}
+              {getDisplayName()}
             </div>
             <div className="text-[13px]">
               {isTyping ? (
@@ -217,6 +295,15 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
         </div>
         
         <div className="flex items-center gap-1">
+          {!isInContacts && (
+            <button 
+              onClick={openSaveContactModal}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-[#00a884] hover:bg-[#374248] transition-smooth"
+              title="Save Contact"
+            >
+              <UserPlus className="w-5 h-5" />
+            </button>
+          )}
           <button 
             onClick={() => handleStartCall('video')}
             className="w-10 h-10 rounded-full flex items-center justify-center text-[#aebac1] hover:bg-[#374248] transition-smooth"
@@ -459,6 +546,83 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
           <Send className="w-5 h-5" />
         </button>
       </div>
+
+      {/* Save Contact Modal */}
+      {showSaveContactModal && (
+        <>
+          <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setShowSaveContactModal(false)} />
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="bg-[#233138] rounded-lg shadow-2xl w-full max-w-md animate-fade-in">
+              <div className="p-6">
+                <h3 className="text-[#e9edef] text-[20px] font-medium mb-2">Save Contact</h3>
+                <p className="text-[#8696a0] text-sm mb-6">
+                  Save {activeChatUser?.phone || 'this number'} to your contacts
+                </p>
+
+                <div className="mb-6">
+                  <label className="text-[#8696a0] text-xs uppercase tracking-wide block mb-2">Contact name</label>
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Enter contact name"
+                    className="w-full bg-[#182229] text-white px-4 py-3 rounded-lg border border-[#2a3942] focus:border-[#00a884] outline-none text-[15px]"
+                    autoFocus
+                    onKeyDown={(e) => e.key === 'Enter' && handleSaveContact()}
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowSaveContactModal(false)}
+                    className="flex-1 py-3 bg-[#2a3942] hover:bg-[#3b4a54] text-white font-medium rounded-lg transition-smooth"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveContact}
+                    disabled={savingContact || !displayName.trim()}
+                    className="flex-1 py-3 bg-[#00a884] hover:bg-[#06cf9c] text-[#111b21] font-medium rounded-lg transition-smooth disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {savingContact ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-[#111b21] border-t-transparent rounded-full spinner" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4" />
+                        Save Contact
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Optional quick actions */}
+                <div className="mt-6 pt-6 border-t border-[#2a3942]">
+                  <p className="text-[#8696a0] text-xs uppercase tracking-wide mb-3">Quick actions</p>
+                  <div className="flex gap-3">
+                    <button
+                      className="flex-1 py-2.5 bg-[#182229] hover:bg-[#202c33] text-[#e9edef] text-sm rounded-lg transition-smooth flex items-center justify-center gap-2"
+                      title="Block this contact"
+                    >
+                      <Shield className="w-4 h-4" />
+                      Block
+                    </button>
+                    <button
+                      className="flex-1 py-2.5 bg-[#182229] hover:bg-[#202c33] text-[#e9edef] text-sm rounded-lg transition-smooth flex items-center justify-center gap-2"
+                      title="Report this contact"
+                    >
+                      <Flag className="w-4 h-4" />
+                      Report
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

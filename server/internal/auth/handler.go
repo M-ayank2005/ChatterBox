@@ -27,6 +27,9 @@ func Signup(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
 	}
 
+	// Normalize phone number - remove spaces, dashes, and ensure consistent format
+	normalizedPhone := normalizePhoneNumber(input.Phone)
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Could not hash password"})
@@ -34,7 +37,7 @@ func Signup(c *fiber.Ctx) error {
 
 	user := models.User{
 		Username: input.Username,
-		Phone:    input.Phone,
+		Phone:    normalizedPhone,
 		Bio:      input.Bio,
 		Password: string(hash),
 		Avatar:   "https://api.dicebear.com/7.x/initials/svg?seed=" + input.Username,
@@ -42,8 +45,11 @@ func Signup(c *fiber.Ctx) error {
 
 	collection := db.MongoClient.Database("whatsapp").Collection("users")
 	
-    // Check if user exists
-    count, _ := collection.CountDocuments(context.TODO(), bson.M{"phone": input.Phone})
+    // Check if user exists - properly handle errors
+    count, err := collection.CountDocuments(context.TODO(), bson.M{"phone": normalizedPhone})
+    if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Database error checking phone number"})
+    }
     if count > 0 {
         return c.Status(400).JSON(fiber.Map{"error": "Phone number already in use"})
     }
@@ -59,6 +65,18 @@ func Signup(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
+// normalizePhoneNumber removes common formatting characters for consistent comparison
+func normalizePhoneNumber(phone string) string {
+	// Remove spaces, dashes, parentheses, and plus sign
+	normalized := ""
+	for _, char := range phone {
+		if char >= '0' && char <= '9' {
+			normalized += string(char)
+		}
+	}
+	return normalized
+}
+
 func Login(c *fiber.Ctx) error {
 	var input struct {
 		Phone    string `json:"phone"`
@@ -69,9 +87,12 @@ func Login(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
 	}
 
+	// Normalize phone number for consistent comparison
+	normalizedPhone := normalizePhoneNumber(input.Phone)
+
 	collection := db.MongoClient.Database("whatsapp").Collection("users")
 	var user models.User
-	err := collection.FindOne(context.TODO(), bson.M{"phone": input.Phone}).Decode(&user)
+	err := collection.FindOne(context.TODO(), bson.M{"phone": normalizedPhone}).Decode(&user)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "User not found"})
 	}
@@ -114,9 +135,12 @@ func SearchUserByPhone(c *fiber.Ctx) error {
         return c.Status(400).JSON(fiber.Map{"error": "Phone number required"})
     }
 
+    // Normalize phone number for consistent comparison
+    normalizedPhone := normalizePhoneNumber(phone)
+
     collection := db.MongoClient.Database("whatsapp").Collection("users")
     var user models.User
-    err := collection.FindOne(context.TODO(), bson.M{"phone": phone}).Decode(&user)
+    err := collection.FindOne(context.TODO(), bson.M{"phone": normalizedPhone}).Decode(&user)
     if err != nil {
         return c.Status(404).JSON(fiber.Map{"error": "User not found"})
     }
