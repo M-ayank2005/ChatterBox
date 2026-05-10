@@ -41,24 +41,24 @@ export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute inset-0 z-50 bg-[#111b21] flex flex-col animate-slide-in">
+    <div className="absolute inset-0 z-50 bg-[#111b21] flex flex-col animate-slide-in overflow-hidden">
       {/* Header */}
-      <div className="h-[108px] bg-[#202c33] flex flex-col justify-end px-6 pb-5">
-        <div className="flex items-center gap-6">
+      <div className="h-[60px] bg-[#202c33] flex items-center px-6 shrink-0 border-b border-[#2a3942]/30">
+        <div className="flex items-center gap-5">
           <ArrowLeft 
-            className="w-6 h-6 text-[#d9dee0] cursor-pointer hover:text-white transition-all" 
+            className="w-5 h-5 text-[#d9dee0] cursor-pointer hover:text-white transition-all" 
             onClick={onClose}
           />
-          <h2 className="text-[19px] font-medium text-white">Profile</h2>
+          <h2 className="text-[17px] font-medium text-white">Profile</h2>
         </div>
       </div>
 
       {/* Profile Content */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {/* Avatar Section */}
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-7">
           <div className="relative group cursor-pointer">
-            <div className="w-[200px] h-[200px] rounded-full bg-gradient-to-br from-[#00a884] to-[#02735e] flex items-center justify-center text-white text-7xl font-light">
+            <div className="w-[150px] h-[150px] rounded-full bg-gradient-to-br from-[#00a884] to-[#02735e] flex items-center justify-center text-white text-6xl font-light shadow-xl shadow-[#00a884]/10">
               {user?.username?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="absolute inset-0 rounded-full bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -69,9 +69,9 @@ export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
         </div>
 
         {/* Name Section */}
-        <div className="px-8 py-4 bg-[#111b21]">
-          <label className="text-[#00a884] text-xs uppercase tracking-wider">Your Name</label>
-          <div className="flex items-center justify-between mt-3">
+        <div className="px-8 py-5 bg-[#111b21]">
+          <label className="text-[#00a884] text-[12px] uppercase tracking-wider font-medium">Your Name</label>
+          <div className="flex items-center justify-between mt-4">
             {editingName ? (
               <div className="flex-1 flex items-center gap-4">
                 <input
@@ -104,17 +104,17 @@ export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
               </>
             )}
           </div>
-          <p className="text-[#8696a0] text-sm mt-4">
+          <p className="text-[#8696a0] text-[13px] mt-4 leading-5">
             This is not your username or pin. This name will be visible to your ChatterBox contacts.
           </p>
         </div>
 
-        <div className="h-3 bg-[#0b141a]" />
+        <div className="h-2.5 bg-[#0b141a]" />
 
         {/* About/Bio Section */}
-        <div className="px-8 py-4 bg-[#111b21]">
-          <label className="text-[#00a884] text-xs uppercase tracking-wider">About</label>
-          <div className="flex items-center justify-between mt-3">
+        <div className="px-8 py-5 bg-[#111b21]">
+          <label className="text-[#00a884] text-[12px] uppercase tracking-wider font-medium">About</label>
+          <div className="flex items-center justify-between mt-4">
             {editingBio ? (
               <div className="flex-1 flex items-start gap-4">
                 <textarea
@@ -149,12 +149,12 @@ export default function ProfilePanel({ isOpen, onClose }: ProfilePanelProps) {
           </div>
         </div>
 
-        <div className="h-3 bg-[#0b141a]" />
+        <div className="h-2.5 bg-[#0b141a]" />
 
         {/* Phone Section */}
-        <div className="px-8 py-4 bg-[#111b21]">
-          <label className="text-[#00a884] text-xs uppercase tracking-wider">Phone</label>
-          <div className="mt-3">
+        <div className="px-8 py-5 bg-[#111b21]">
+          <label className="text-[#00a884] text-[12px] uppercase tracking-wider font-medium">Phone</label>
+          <div className="mt-4">
             <span className="text-[#e9edef] text-[17px]">{user?.phone}</span>
           </div>
         </div>

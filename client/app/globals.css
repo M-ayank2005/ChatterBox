@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -207,10 +206,9 @@ input[type="email"] {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Input focus glow */
+/* Input focus glow - subtle for chat inputs */
 input:focus, textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.2);
 }
 
 /* Hover card effect */
@@ -232,8 +230,6 @@ input:focus, textarea:focus {
 button {
   font-family: inherit;
   cursor: pointer;
-  border: none;
-  background: transparent;
 }
 
 button:disabled {

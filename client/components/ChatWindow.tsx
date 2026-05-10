@@ -13,10 +13,11 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
-  const { activeChat, activeChatUser, messages, user, typing, onlineStatus, replyingTo, setReplyingTo, contacts, setContacts } = useStore();
+  const { activeChat, activeChatUser, messages, user, typing, onlineStatus, replyingTo, setReplyingTo, contacts, setContacts, clearChat, setActiveChat } = useStore();
   const [input, setInput] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [showMessageMenu, setShowMessageMenu] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaveContactModal, setShowSaveContactModal] = useState(false);
@@ -218,7 +219,7 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
     return (
       <div className="flex-1 h-full bg-[#222e35] flex flex-col items-center justify-center relative overflow-hidden">
         {/* Decorative top bar */}
-        <div className="absolute top-0 left-0 right-0 h-[6px] bg-[#00a884]" />
+      <div className="absolute top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-[#00a884] to-[#02735e]" />
         
         <div className="text-center px-8 max-w-md animate-fade-in">
           {/* Illustration */}
@@ -262,9 +263,9 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0b141a] relative">
+    <div className="flex-1 flex flex-col h-full bg-[#0b141a] relative min-w-0">
       {/* Header */}
-      <div className="h-[59px] bg-[#202c33] shrink-0 px-4 flex items-center justify-between">
+      <div className="h-[60px] bg-[#202c33] shrink-0 px-4 flex items-center justify-between border-b border-[#2a3942]/30">
         <div className="flex items-center cursor-pointer group">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00a884] to-[#02735e] flex items-center justify-center text-white font-medium mr-[15px] shadow-lg">
             {getDisplayName()?.charAt(0).toUpperCase() || 'U'}
@@ -322,9 +323,90 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
           >
             <Search className="w-5 h-5" />
           </button>
-          <button className="w-10 h-10 rounded-full flex items-center justify-center text-[#aebac1] hover:bg-[#374248] transition-smooth">
-            <MoreVertical className="w-5 h-5" />
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowMenu(!showMenu)}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-[#aebac1] hover:bg-[#374248] transition-smooth"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+            
+            {showMenu && (
+              <>
+                <div className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
+                <div 
+                  className="absolute right-0 top-full mt-2 rounded-lg shadow-2xl py-2 min-w-[200px] z-[70] animate-slide-in"
+                  style={{ backgroundColor: '#233138', border: '1px solid rgba(42,57,66,0.6)' }}
+                >
+                  <button
+                    className="w-full px-6 py-[12px] text-left text-[#d1d7db] text-[15px] transition-smooth"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#182229'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onClick={() => { setShowMenu(false); alert('Contact info coming soon!'); }}
+                  >
+                    Contact info
+                  </button>
+                  <button
+                    className="w-full px-6 py-[12px] text-left text-[#d1d7db] text-[15px] transition-smooth"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#182229'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onClick={() => setShowMenu(false)}
+                  >
+                    Select messages
+                  </button>
+                  <button
+                    className="w-full px-6 py-[12px] text-left text-[#d1d7db] text-[15px] transition-smooth"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#182229'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onClick={() => { setShowMenu(false); setActiveChat(null, null); }}
+                  >
+                    Close chat
+                  </button>
+                  <button
+                    className="w-full px-6 py-[12px] text-left text-[#d1d7db] text-[15px] transition-smooth"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#182229'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onClick={() => setShowMenu(false)}
+                  >
+                    Mute notifications
+                  </button>
+                  <button
+                    className="w-full px-6 py-[12px] text-left text-[#d1d7db] text-[15px] transition-smooth"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#182229'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onClick={() => { 
+                      setShowMenu(false); 
+                      if(window.confirm('Are you sure you want to clear messages in this chat?')) {
+                        clearChat(activeChat || '');
+                      }
+                    }}
+                  >
+                    Clear chat
+                  </button>
+                  <button
+                    className="w-full px-6 py-[12px] text-left text-[#d1d7db] text-[15px] transition-smooth"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#182229'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onClick={() => {
+                      setShowMenu(false);
+                      if(window.confirm('Are you sure you want to block this user?')) {
+                        alert('User blocked');
+                        setActiveChat(null, null);
+                      }
+                    }}
+                  >
+                    Block
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -347,7 +429,7 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
       )}
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto chat-bg custom-scrollbar py-4 px-[3%]">
+      <div className="flex-1 overflow-y-auto chat-bg custom-scrollbar py-3 px-[4%] sm:px-[5%] lg:px-[7%]">
         {filteredMessages.length === 0 ? (
           <div className="flex justify-center mt-8 animate-fade-in">
             <div className="bg-[#182229] text-[#8696a0] text-[12.5px] px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-2">
@@ -500,7 +582,7 @@ export default function ChatWindow({ ws, onStartCall }: ChatWindowProps) {
       )}
 
       {/* Input Area */}
-      <div className="bg-[#202c33] px-4 py-2 flex items-center gap-2 shrink-0 relative">
+      <div className="bg-[#202c33] px-3 py-[6px] flex items-center gap-1.5 shrink-0 relative border-t border-[#2a3942]/30">
         {/* Emoji Picker */}
         <EmojiPicker
           isOpen={showEmojiPicker}

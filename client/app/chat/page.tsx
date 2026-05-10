@@ -392,7 +392,7 @@ export default function ChatPage() {
   if (!user) return null;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-900 text-white">
+    <div className="flex h-screen overflow-hidden bg-[#111b21] text-white">
       <ResizablePanel minWidth={280} maxWidth={600} defaultWidth={400}>
         <ChatSidebar />
       </ResizablePanel>

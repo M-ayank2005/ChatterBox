@@ -325,9 +325,9 @@ export default function ChatSidebar() {
 
   // Main Sidebar
   return (
-    <div className="w-full bg-[#111b21] border-r border-[#2a3942] flex flex-col h-full">
+    <div className="w-full bg-[#111b21] border-r border-[#2a3942] flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="h-[59px] bg-[#202c33] flex items-center justify-between px-4 shrink-0">
+      <div className="h-[60px] bg-[#202c33] flex items-center justify-between px-4 shrink-0 border-b border-[#2a3942]/30">
         <div 
           className="flex items-center gap-3 cursor-pointer group"
           onClick={() => setShowProfile(true)}
@@ -337,7 +337,7 @@ export default function ChatSidebar() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setShowCreateGroup(true)}
             className="w-10 h-10 rounded-full flex items-center justify-center text-[#aebac1] hover:bg-[#374248] transition-smooth"
@@ -363,8 +363,8 @@ export default function ChatSidebar() {
             
             {showMenu && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-12 bg-[#233138] rounded-md shadow-xl py-2 w-52 z-50 animate-slide-in">
+                <div className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
+                <div className="absolute right-0 top-full mt-1 bg-[#233138] rounded-lg shadow-2xl py-2.5 w-56 z-[70] animate-slide-in border border-[#2a3942]/50">
                   <button
                     onClick={() => { setShowProfile(true); setShowMenu(false); }}
                     className="w-full px-6 py-[10px] text-left text-[#d1d7db] hover:bg-[#182229] text-[14.5px] transition-smooth flex items-center gap-3"
@@ -400,7 +400,7 @@ export default function ChatSidebar() {
       </div>
       
       {/* Tabs */}
-      <div className="flex bg-[#202c33]">
+      <div className="flex bg-[#202c33] border-b border-[#2a3942]/30">
         <button
           onClick={() => setActiveTab('chats')}
           className={`flex-1 py-[14px] text-[13px] font-medium tracking-wide uppercase transition-smooth relative ${
@@ -443,7 +443,7 @@ export default function ChatSidebar() {
       </div>
       
       {/* Search Bar */}
-      <div className="px-3 py-2 bg-[#111b21]">
+      <div className="px-2.5 py-[6px] bg-[#111b21]">
         <div className="bg-[#202c33] rounded-lg flex items-center px-4 py-[7px] gap-6 focus-within:bg-[#2a3942] transition-smooth">
           <Search className="w-[18px] h-[18px] text-[#8696a0]" />
           <input 
@@ -460,15 +460,16 @@ export default function ChatSidebar() {
         {activeTab === 'chats' ? (
           // Chats Tab
           filteredChats.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[300px] px-8 text-center">
-              <div className="w-[72px] h-[72px] rounded-full bg-[#202c33] flex items-center justify-center mb-4">
+            <div className="flex flex-col items-center justify-center flex-1 min-h-[300px] px-8 text-center">
+              <div className="w-[72px] h-[72px] rounded-full bg-[#202c33] flex items-center justify-center mb-5">
                 <MessageCirclePlus className="w-8 h-8 text-[#8696a0]" />
               </div>
-              <h3 className="text-[#e9edef] text-[17px] font-medium mb-2">No chats yet</h3>
-              <p className="text-[#8696a0] text-sm mb-6">Start messaging by tapping the new chat button</p>
+              <h3 className="text-[#e9edef] text-[17px] font-medium mb-1.5">No chats yet</h3>
+              <p className="text-[#8696a0] text-[13px] leading-5 mb-6 max-w-[200px]">Start messaging by tapping the new chat button</p>
               <button 
                 onClick={() => setShowNewChat(true)}
-                className="px-6 py-2.5 bg-[#00a884] hover:bg-[#06cf9c] text-[#111b21] font-medium rounded-full transition-smooth"
+                className="px-6 py-2.5 hover:bg-[#06cf9c] text-[14px] font-medium rounded-full transition-smooth shadow-lg shadow-[#00a884]/20"
+                style={{ backgroundColor: '#00a884', color: '#111b21' }}
               >
                 Start New Chat
               </button>
@@ -509,15 +510,16 @@ export default function ChatSidebar() {
         ) : activeTab === 'contacts' ? (
           // Contacts Tab
           filteredContacts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[300px] px-8 text-center">
-              <div className="w-[72px] h-[72px] rounded-full bg-[#202c33] flex items-center justify-center mb-4">
+            <div className="flex flex-col items-center justify-center flex-1 min-h-[300px] px-8 text-center">
+              <div className="w-[72px] h-[72px] rounded-full bg-[#202c33] flex items-center justify-center mb-5">
                 <UserPlus className="w-8 h-8 text-[#8696a0]" />
               </div>
-              <h3 className="text-[#e9edef] text-[17px] font-medium mb-2">No contacts yet</h3>
-              <p className="text-[#8696a0] text-sm mb-6">Add contacts to quickly start conversations</p>
+              <h3 className="text-[#e9edef] text-[17px] font-medium mb-1.5">No contacts yet</h3>
+              <p className="text-[#8696a0] text-[13px] leading-5 mb-6 max-w-[200px]">Add contacts to quickly start conversations</p>
               <button 
                 onClick={() => setShowNewChat(true)}
-                className="px-6 py-2.5 bg-[#00a884] hover:bg-[#06cf9c] text-[#111b21] font-medium rounded-full transition-smooth"
+                className="px-6 py-2.5 hover:bg-[#06cf9c] text-[14px] font-medium rounded-full transition-smooth shadow-lg shadow-[#00a884]/20"
+                style={{ backgroundColor: '#00a884', color: '#111b21' }}
               >
                 Add Contact
               </button>
@@ -546,15 +548,16 @@ export default function ChatSidebar() {
         ) : (
           // Groups Tab
           groups.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[300px] px-8 text-center">
-              <div className="w-[72px] h-[72px] rounded-full bg-[#202c33] flex items-center justify-center mb-4">
+            <div className="flex flex-col items-center justify-center flex-1 min-h-[300px] px-8 text-center">
+              <div className="w-[72px] h-[72px] rounded-full bg-[#202c33] flex items-center justify-center mb-5">
                 <Users className="w-8 h-8 text-[#8696a0]" />
               </div>
-              <h3 className="text-[#e9edef] text-[17px] font-medium mb-2">No groups yet</h3>
-              <p className="text-[#8696a0] text-sm mb-6">Create a group to chat with multiple people</p>
+              <h3 className="text-[#e9edef] text-[17px] font-medium mb-1.5">No groups yet</h3>
+              <p className="text-[#8696a0] text-[13px] leading-5 mb-6 max-w-[220px]">Create a group to chat with multiple people</p>
               <button 
                 onClick={() => setShowCreateGroup(true)}
-                className="px-6 py-2.5 bg-[#00a884] hover:bg-[#06cf9c] text-[#111b21] font-medium rounded-full transition-smooth"
+                className="px-6 py-2.5 hover:bg-[#06cf9c] text-[14px] font-medium rounded-full transition-smooth shadow-lg shadow-[#00a884]/20"
+                style={{ backgroundColor: '#00a884', color: '#111b21' }}
               >
                 Create Group
               </button>

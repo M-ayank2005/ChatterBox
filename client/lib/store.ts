@@ -96,6 +96,7 @@ interface AppState {
   setOnlineStatus: (userId: string, isOnline: boolean, lastSeen: string) => void;
   setOnlineUser: (userId: string, isOnline: boolean) => void;
   setReplyingTo: (message: Message | null) => void;
+  clearChat: (chatId: string) => void;
   logout: () => void;
 }
 
@@ -216,6 +217,14 @@ export const useStore = create<AppState>()(
       })),
 
       setReplyingTo: (message) => set({ replyingTo: message }),
+
+      clearChat: (chatId) => set((state) => ({
+        messages: state.messages.filter(m => 
+          !(m.chat_id === chatId || 
+            (m.sender_id === state.user?.id && m.receiver_id === chatId) || 
+            (m.sender_id === chatId && m.receiver_id === state.user?.id))
+        )
+      })),
 
       logout: () => set({
         user: null,
