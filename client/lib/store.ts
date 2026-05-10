@@ -86,7 +86,7 @@ interface AppState {
   addMessage: (msg: Message) => void;
   updateMessageStatus: (messageIds: string | string[], status: 'delivered' | 'read') => void;
   deleteMessage: (messageId: string, deleteForEveryone: boolean) => void;
-  setActiveChat: (chatId: string, chatUser: User | null) => void;
+  setActiveChat: (chatId: string | null, chatUser: User | null) => void;
   setActiveGroup: (group: Group | null) => void;
   setContacts: (contacts: Contact[]) => void;
   setGroups: (groups: Group[]) => void;
